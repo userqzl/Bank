@@ -18,6 +18,8 @@ public class ATM {
     private static boolean isLogin = false;
     private static String ATM_user = null;
     private static String ATM_pwd = null;
+
+    //主菜单
     public static void display(){
         if(!isLogin){
             System.out.println("-----------------------欢迎使用ATM柜员机系统---------------------");
