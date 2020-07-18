@@ -1,11 +1,14 @@
 package cn.codeaper.java;
 
 import cn.codeaper.util.JDBCInit;
-import cn.codeaper.util.JDBCOpt;
+import com.alibaba.druid.pool.DruidDataSourceFactory;
 
-import javax.swing.text.Document;
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.Properties;
 import java.util.Scanner;
 
 /**
@@ -18,6 +21,21 @@ public class ATM {
     private static boolean isLogin = false;
     private static String ATM_user = null;
     private static String ATM_pwd = null;
+    private static DataSource dataSource = null;
+
+
+    static {
+        //加载配置文件
+        Properties properties = new Properties();
+        InputStream resourceAsStream = ATM.class.getClassLoader().getResourceAsStream("druid.properties");
+        try {
+            properties.load(resourceAsStream);
+            //获取数据库连接池对象
+            dataSource = DruidDataSourceFactory.createDataSource(properties);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     //主菜单
     public static void display(){
@@ -98,8 +116,8 @@ public class ATM {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
-            //获取sql执行对象
-            con = JDBCInit.init();
+            //从数据库连接池中获取连接对象
+            con = dataSource.getConnection();
             //定义sql语句
             String sql = "select * from login where card_id = ? and password = ?";
             //获取数据库执行对象
@@ -124,6 +142,8 @@ public class ATM {
             e.printStackTrace();
         }
         finally {
+            //释放资源
+            //将数据库连接对象归还数据库连接池
             JDBCInit.close(resultSet,statement,con);
             display();
         }
@@ -147,8 +167,8 @@ public class ATM {
         Statement statement = null;
         ResultSet resultSet = null;
         try {
-            //获取数据库连接对象
-            con = JDBCInit.init();
+            //从数据库连接池获取数据库连接对象
+            con = dataSource.getConnection();
 
             //定义sql
             String sql_select = "select max(card_id) from login";
@@ -215,8 +235,8 @@ public class ATM {
             }
         }
         try {
-            //获取数据库连接对象
-            con = JDBCInit.init();
+            //从数据库连接池获取数据库连接对象
+            con = dataSource.getConnection();
             //定义sql查询余额
             String sql_select = "select money from account where id = ?";
             //获取数据库执行对象
@@ -277,8 +297,8 @@ public class ATM {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
-            //获取数据库连接对象
-            con = JDBCInit.init();
+            //从数据库连接池获取数据库连接对象
+            con = dataSource.getConnection();
             //定义sql查询余额
             String sql_select = "select money from account where id = ?";
             //获取数据库执行对象
@@ -331,8 +351,8 @@ public class ATM {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
-            //获取数据库连接对象
-            con = JDBCInit.init();
+            //从数据库连接池获取数据库连接对象
+            con = dataSource.getConnection();
 
             //定义sql语句
             String sql = "select * from account where id = ?";
@@ -390,7 +410,7 @@ public class ATM {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
-            con = JDBCInit.init();
+            con = dataSource.getConnection();
             //查询对方账号是否存在
             //定义sql
             String sql_id = "select * from account where id = ?";
@@ -490,7 +510,7 @@ public class ATM {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
-            con = JDBCInit.init();
+            con = dataSource.getConnection();
             String sql = "select * from opt where id = ? or other_id = ?";
             statement = con.prepareStatement(sql);
             statement.setString(1,ATM_user);

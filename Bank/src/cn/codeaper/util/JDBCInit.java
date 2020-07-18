@@ -94,6 +94,22 @@ public class JDBCInit {
             }
         }
     }
+    public static void close(ResultSet res,PreparedStatement statement)  {
+        if(res != null){
+            try {
+                res.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        if(statement != null){
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
     public static void close(Statement statement,Connection con){
         if(statement != null){
             try {
